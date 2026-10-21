@@ -1,0 +1,24 @@
+name: nyc_street_safety
+version: '1.0.0'
+config-version: 2
+profile: nyc_street_safety
+model-paths: [models]
+analysis-paths: [analyses]
+test-paths: [tests/sql]
+macro-paths: [macros]
+clean-targets: [target, dbt_packages]
+vars:
+  analysis_start: '2025-01-01'
+  analysis_end: '2025-02-01'
+  minimum_parking_complaints: 20
+models:
+  nyc_street_safety:
+    staging:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: marts
+    reporting:
+      +materialized: table
+      +schema: reporting

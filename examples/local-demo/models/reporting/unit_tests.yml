@@ -1,0 +1,20 @@
+version: 2
+unit_tests:
+  - name: injury_ratio_requires_volume_and_complete_measures
+    model: kpi_zip_summary
+    overrides:
+      vars:
+        minimum_parking_complaints: 20
+    given:
+      - input: ref('kpi_daily_zip')
+        rows:
+          - {zip_code: '10001', complaints: 40, parking_complaints: 20, crashes: 4, persons_injured: 3, persons_killed: 0, vulnerable_injuries: 3, crashes_with_missing_measures: 0}
+          - {zip_code: '10002', complaints: 30, parking_complaints: 19, crashes: 4, persons_injured: 3, persons_killed: 0, vulnerable_injuries: 3, crashes_with_missing_measures: 0}
+          - {zip_code: '10003', complaints: 30, parking_complaints: 20, crashes: 4, persons_injured: 3, persons_killed: 0, vulnerable_injuries: 3, crashes_with_missing_measures: 1}
+          - {zip_code: '10004', complaints: 20, parking_complaints: 20, crashes: 0, persons_injured: 0, persons_killed: 0, vulnerable_injuries: 0, crashes_with_missing_measures: 0}
+    expect:
+      rows:
+        - {zip_code: '10001', complaints_per_crash: 10.0, vulnerable_injuries_per_parking_complaint: 0.15, injury_ratio_eligible: true}
+        - {zip_code: '10002', complaints_per_crash: 7.5, vulnerable_injuries_per_parking_complaint: null, injury_ratio_eligible: false}
+        - {zip_code: '10003', complaints_per_crash: 7.5, vulnerable_injuries_per_parking_complaint: null, injury_ratio_eligible: false}
+        - {zip_code: '10004', complaints_per_crash: null, vulnerable_injuries_per_parking_complaint: 0.0, injury_ratio_eligible: true}

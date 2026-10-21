@@ -1,0 +1,122 @@
+version: 2
+models:
+  - name: stg_nyc_311_vehicle_complaints
+    description: "One row per in-scope complaint; latest ingested snapshot wins."
+    columns:
+      - name: complaint_id
+        data_tests: [unique, not_null]
+  - name: stg_nyc_vehicle_crashes
+    description: "One row per reported collision; injuries remain nullable."
+    columns:
+      - name: crash_id
+        data_tests: [unique, not_null]
+  - name: dim_shared_location
+    description: "One normalized borough/ZIP/street tuple; not an authoritative geocoder."
+    columns:
+      - name: location_key
+        data_tests: [unique, not_null]
+  - name: dim_shared_date
+    description: "One observed calendar date."
+    columns:
+      - name: date_key
+        data_tests: [unique, not_null]
+  - name: dim_problem_details
+    description: "One complaint type and descriptor combination."
+    columns:
+      - name: problem_key
+        data_tests: [unique, not_null]
+  - name: dim_governing_region
+    description: "One borough and community board combination."
+    columns:
+      - name: region_key
+        data_tests: [unique, not_null]
+  - name: dim_vehicle_type
+    description: "One reported vehicle category, including unknown."
+    columns:
+      - name: vehicle_type_key
+        data_tests: [unique, not_null]
+  - name: dim_contributing_factors
+    description: "One reported contributing factor, including unknown."
+    columns:
+      - name: contributing_factor_key
+        data_tests: [unique, not_null]
+  - name: bridge_crash_vehicles
+    description: "One crash and reported vehicle slot."
+    columns:
+      - name: crash_vehicle_key
+        data_tests: [unique, not_null]
+      - name: crash_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('fact_vehicle_crashes')
+                field: crash_id
+      - name: vehicle_type_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_vehicle_type')
+                field: vehicle_type_key
+      - name: contributing_factor_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_contributing_factors')
+                field: contributing_factor_key
+  - name: fact_311_vehicle_complaints
+    description: "One vehicle-related NYPD service request."
+    columns:
+      - name: complaint_id
+        data_tests: [unique, not_null]
+      - name: location_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_shared_location')
+                field: location_key
+      - name: date_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_shared_date')
+                field: date_key
+      - name: problem_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_problem_details')
+                field: problem_key
+      - name: region_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_governing_region')
+                field: region_key
+  - name: fact_vehicle_crashes
+    description: "One collision; casualty counts live here, not in a person dimension."
+    columns:
+      - name: crash_id
+        data_tests: [unique, not_null]
+      - name: location_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_shared_location')
+                field: location_key
+      - name: date_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_shared_date')
+                field: date_key
+  - name: kpi_zip_summary
+    description: "One ZIP over the configured half-open analysis window."
+    columns:
+      - name: zip_code
+        data_tests: [unique, not_null]

@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.DS_Store
+.env
+.env.*
+!.env.example
+target/
+logs/
+dbt_packages/
+output/
+profiles.yml
+!examples/local-demo/config/profiles.yml

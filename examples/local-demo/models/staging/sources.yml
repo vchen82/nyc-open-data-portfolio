@@ -1,0 +1,9 @@
+version: 2
+sources:
+  - name: nyc_raw
+    database: "{{ target.database }}"
+    schema: "{{ 'raw' if target.type == 'duckdb' else env_var('BQ_RAW_DATASET', 'nyc_raw') }}"
+    description: Raw source snapshots; all business fields are strings. Demo records are synthetic.
+    tables:
+      - name: source_nyc_311_vehicle_complaints
+      - name: source_nyc_vehicle_crashes

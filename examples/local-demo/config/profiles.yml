@@ -1,0 +1,18 @@
+nyc_street_safety:
+  target: demo
+  outputs:
+    demo:
+      type: duckdb
+      path: output/warehouse.duckdb
+      schema: analytics
+      threads: 1
+    bigquery:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('GCP_PROJECT_ID', 'configure-project-id') }}"
+      dataset: "{{ env_var('DBT_DATASET', 'nyc_analytics') }}"
+      location: "{{ env_var('BQ_LOCATION', 'US') }}"
+      threads: 4
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+      maximum_bytes_billed: 10000000000
